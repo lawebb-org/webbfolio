@@ -23,7 +23,6 @@ jobs:
                   # generate Docker tags based on the following events/attributes
                   tags: |
                       type=semver,pattern={{version}}
-                      type=sha
                       type=raw,value=latest,enable={{is_default_branch}}
                   annotations: |
                       org.opencontainers.image.source=https://github.com/lawebb-org/webbfolio
@@ -50,3 +49,24 @@ jobs:
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
                   annotations: ${{ steps.meta.outputs.annotations }}
+            - name: Cleanup untagged images
+              if: github.ref == 'refs/heads/main'
+              env:
+                  GH_TOKEN: ${{ secrets.CR_TOKEN }}
+                  ORG: ${{ vars.ORG_NAME }}
+                  PKG: webbfolio
+              run: |
+                  set -euo pipefail
+                  echo "Fetching untagged versions..."
+                  gh api -H "Accept: application/vnd.github+json" /orgs/${ORG}/packages/container/${PKG}/versions --paginate \
+                    | jq -r '.[] | select(.metadata.container.tags|length==0) | .id' > delete_ids.txt
+                  if [ ! -s delete_ids.txt ]; then
+                      echo "No untagged versions."
+                      exit 0
+                  fi
+                  # Limit deletions per run (e.g. 20) to be safe
+                  head -n 20 delete_ids.txt | while read id; do
+                      echo "Deleting untagged version id=$id"
+                      gh api -X DELETE /orgs/${ORG}/packages/container/${PKG}/versions/$id
+                  done
+                  echo "Cleanup complete."
