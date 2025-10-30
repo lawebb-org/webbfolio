@@ -1,0 +1,6 @@
+apiVersion: v2
+name: webbfolio
+description: An interactive CV project using Kubernetes, Golang and NextJS
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

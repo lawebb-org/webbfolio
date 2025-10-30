@@ -1,60 +1,90 @@
-name: Build and Publish Webbfolio
+name: Build and Push Container Image
 on:
-    workflow_dispatch:
-    push:
-        branches:
-            - main
-        tags:
-            - "v*.*.*"
-env:
-    IMAGE_NAME: ghcr.io/lawebb-org/webbfolio
+    workflow_call:
+        inputs:
+            image_name:
+                required: true
+                type: string
+            image_tag:
+                required: false
+                type: string
+                default: dev
+            description:
+                required: true
+                type: string
+            dockerfile:
+                required: true
+                type: string
+            package:
+                required: true
+                type: string
+            context:
+                required: false
+                type: string
+                default: .
+        secrets:
+            registry_username:
+                required: true
+            registry_token:
+                required: true
+
 jobs:
     build-and-push:
         runs-on: ubuntu-latest
+        env:
+            IMAGE_NAME: ${{ inputs.image_name }}
+            DESCRIPTION: ${{ inputs.description }}
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+
             - name: Docker meta
               id: meta
               uses: docker/metadata-action@v5
               with:
-                  # list of Docker images to use as base name for tags
                   images: ${{ env.IMAGE_NAME }}
-                  # generate Docker tags based on the following events/attributes
                   tags: |
                       type=semver,pattern={{version}}
-                      type=raw,value=latest,enable={{is_default_branch}}
+                      type=raw,value=${{ inputs.image_tag }}
                   annotations: |
-                      org.opencontainers.image.source=https://github.com/lawebb-org/webbfolio
-                      org.opencontainers.image.description="A personal website and portfolio for lawebb built with NextJs"
+                      org.opencontainers.image.source=${{ github.repositoryUrl }}
+                      org.opencontainers.image.description="${{ env.DESCRIPTION }}"
                   labels: |
-                      org.opencontainers.image.source=https://github.com/lawebb-org/webbfolio
-                      org.opencontainers.image.description="A personal website and portfolio for lawebb built with NextJs"
-            - name: Login to Docker Hub
+                      org.opencontainers.image.source=${{ github.repositoryUrl }}
+                      org.opencontainers.image.description="${{ env.DESCRIPTION }}"
+
+            - name: Login to GHCR
               uses: docker/login-action@v3
               with:
                   registry: ghcr.io
-                  username: ${{ vars.CR_USERNAME }}
-                  password: ${{ secrets.CR_TOKEN }}
+                  username: ${{ secrets.registry_username }}
+                  password: ${{ secrets.registry_token }}
+
             - name: Set up QEMU
               uses: docker/setup-qemu-action@v3
+
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
+
             - name: Build and push
               uses: docker/build-push-action@v6
               with:
-                  context: .
-                  file: ./infra/apps/ui/Dockerfile
+                  context: ${{ inputs.context }}
+                  file: ${{ inputs.dockerfile }}
                   push: true
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
                   annotations: ${{ steps.meta.outputs.annotations }}
+
+    cleanup:
+        needs: build-and-push
+        runs-on: ubuntu-latest
+        steps:
             - name: Cleanup untagged images
-              if: github.ref == 'refs/heads/main'
               env:
-                  GH_TOKEN: ${{ secrets.CR_TOKEN }}
+                  GH_TOKEN: ${{ secrets.registry_token }}
                   ORG: ${{ vars.ORG_NAME }}
-                  PKG: webbfolio
+                  PKG: ${{ inputs.package }}
               run: |
                   set -euo pipefail
                   echo "Fetching untagged versions..."
