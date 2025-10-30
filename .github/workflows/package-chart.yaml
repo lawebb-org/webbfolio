@@ -29,3 +29,5 @@ jobs:
               with:
                   name: webbfolio-helm-package-directory
                   path: .helm-packages
+                  if-no-files-found: error
+                  include-hidden-files: true
