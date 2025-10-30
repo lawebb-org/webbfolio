@@ -38,6 +38,10 @@ jobs:
                   pattern: "*-helm-package-directory"
                   path: .helm-packages
                   merge-multiple: true
+                  if-no-files-found: error
+            - name: Show contents
+              run: |
+                  ls -R .helm-packages
 
             - name: Release Charts
               uses: helm/chart-releaser-action@v1.7.0
