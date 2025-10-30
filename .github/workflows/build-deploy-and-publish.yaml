@@ -22,7 +22,6 @@ jobs:
         uses: lawebb-org/webbfolio/.github/workflows/package-chart.yaml@main
         with:
             chart_name: ./infra/charts/webbfolio
-            shared_folder: helm-package-directory
 
     release-charts:
         needs: [package-webbfolio-chart]
