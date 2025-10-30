@@ -5,7 +5,7 @@ on:
             chart_name:
                 required: true
                 type: string
-            destination:
+            shared_folder:
                 required: true
                 type: string
 
@@ -26,7 +26,19 @@ jobs:
               with:
                   version: v3.19.0
 
-            - name: Package Webbfolio Chart
+            - name: Download Helm Package Directory
+              uses: actions/download-artifact@v4
+              with:
+                  name: ${{inputs.shared_folder}}
+                  path: .helm-packages
+
+            - name: Package Webbfolio Helm Chart
               run: |
                   VERSION=${{github.ref_name}}
-                  helm package ${{inputs.chart_name}} --app-version=${VERSION:1} --version=${VERSION:1} --destination=${{inputs.destination}}
+                  helm package ${{inputs.chart_name}} --app-version=${VERSION:1} --version=${VERSION:1} --destination=.helm-packages
+
+            - name: Re-upload Updated Helm Package Directory
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ${{inputs.shared_folder}}
+                  path: .helm-packages
