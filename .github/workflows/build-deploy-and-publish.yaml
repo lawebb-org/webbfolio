@@ -24,6 +24,8 @@ jobs:
             chart_name: ./infra/charts/webbfolio
 
     release-charts:
+        permissions:
+            contents: write
         needs: [package-webbfolio-chart]
         runs-on: ubuntu-latest
         steps:
@@ -54,7 +56,7 @@ jobs:
                   skip_packaging: true
                   charts_dir: ./infra/charts
               env:
-                  CR_TOKEN: "${{ secrets.CR_TOKEN }}"
+                  CR_TOKEN: ${{ github.token }}
 
     deploy:
         needs: [release-charts, build-and-push-webbfolio-image]
