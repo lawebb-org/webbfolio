@@ -5,9 +5,6 @@ on:
             chart_name:
                 required: true
                 type: string
-            shared_folder:
-                required: true
-                type: string
 
 jobs:
     package-webbfolio-chart:
@@ -26,19 +23,14 @@ jobs:
               with:
                   version: v3.19.0
 
-            - name: Download Helm Package Directory
-              uses: actions/download-artifact@v4
-              with:
-                  name: ${{inputs.shared_folder}}
-                  path: .helm-packages
-
             - name: Package Webbfolio Helm Chart
               run: |
+                  mkdir -p .helm-packages
                   VERSION=${{github.ref_name}}
                   helm package ${{inputs.chart_name}} --app-version=${VERSION:1} --version=${VERSION:1} --destination=.helm-packages
 
-            - name: Re-upload Updated Helm Package Directory
+            - name: Upload Helm Package Directory
               uses: actions/upload-artifact@v4
               with:
-                  name: ${{inputs.shared_folder}}
+                  name: webbfolio-helm-package-directory
                   path: .helm-packages
