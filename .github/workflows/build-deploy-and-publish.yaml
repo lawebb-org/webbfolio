@@ -28,7 +28,7 @@ jobs:
 
     package-webbfolio-chart:
         needs: [recreate-cr-release-packages]
-        uses: lawebb-org/webbfolio/.github/workflows/package-charts.yaml@main
+        uses: lawebb-org/webbfolio/.github/workflows/package-chart.yaml@main
         with:
             chart_name: ./infra/charts/webbfolio
             destination: .cr-release-packages
