@@ -18,27 +18,37 @@ jobs:
             registry_username: ${{ vars.CR_USERNAME }}
             registry_token: ${{ secrets.CR_TOKEN }}
 
-    recreate-cr-release-packages:
+    create-and-upload-helm-package-directory:
         runs-on: ubuntu-latest
         steps:
-            - name: Recreate CR Release Packages Directory
+            - name: Create Helm Package Directory
               run: |
-                  rm -rf .cr-release-packages
-                  mkdir -p .cr-release-packages
+                  rm -rf .helm-packages
+                  mkdir -p .helm-packages
+
+            - name: Upload Helm Package Directory
+              uses: actions/upload-artifact@v4
+              with:
+                  name: helm-package-directory
+                  path: .helm-packages
 
     package-webbfolio-chart:
-        needs: [recreate-cr-release-packages]
+        needs: [create-and-upload-helm-package-directory]
         uses: lawebb-org/webbfolio/.github/workflows/package-chart.yaml@main
         with:
             chart_name: ./infra/charts/webbfolio
-            destination: .cr-release-packages
+            shared_folder: helm-package-directory
 
     release-charts:
         needs: [package-webbfolio-chart]
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+            - name: Release Charts
+              uses: helm/chart-releaser-action@v1.6.0
+              with:
+                  skip_packaging: true
+              env:
+                  CR_TOKEN: "${{ secrets.CR_TOKEN }}"
 
     deploy:
         needs: [release-charts, build-and-push-webbfolio-image]
