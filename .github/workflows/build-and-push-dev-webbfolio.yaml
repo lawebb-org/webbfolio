@@ -1,0 +1,18 @@
+name: Build and Push Webbfolio (Dev)
+on:
+    workflow_dispatch:
+env:
+    IMAGE_NAME: ghcr.io/lawebb-org/webbfolio
+jobs:
+    build-and-push:
+        uses: lawebb-org/webbfolio/.github/workflows/build-and-push-image.yaml@main
+        with:
+            image_name: ghcr.io/lawebb-org/webbfolio
+            image_tag: dev
+            description: A personal website and portfolio for lawebb built with NextJs
+            dockerfile: ./infra/docker/webbfolio/Dockerfile
+            package: webbfolio
+            context: .
+        secrets:
+            registry_username: ${{ vars.CR_USERNAME }}
+            registry_token: ${{ secrets.CR_TOKEN }}

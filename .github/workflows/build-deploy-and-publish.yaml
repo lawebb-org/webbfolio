@@ -1,0 +1,48 @@
+name: Build, Publish and Deploy
+on:
+    push:
+        tags:
+            - "v*.*.*"
+
+jobs:
+    build-and-push-webbfolio-image:
+        uses: lawebb-org/webbfolio/.github/workflows/build-and-push-image.yaml@main
+        with:
+            image_name: ghcr.io/lawebb-org/webbfolio
+            image_tag: latest
+            description: A personal website and portfolio for lawebb built with NextJs
+            dockerfile: ./infra/docker/webbfolio/Dockerfile
+            package: webbfolio
+            context: .
+        secrets:
+            registry_username: ${{ vars.CR_USERNAME }}
+            registry_token: ${{ secrets.CR_TOKEN }}
+
+    recreate-cr-release-packages:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Recreate CR Release Packages Directory
+              run: |
+                  rm -rf .cr-release-packages
+                  mkdir -p .cr-release-packages
+
+    package-webbfolio-chart:
+        needs: [recreate-cr-release-packages]
+        uses: lawebb-org/webbfolio/.github/workflows/package-charts.yaml@main
+        with:
+            chart_name: ./infra/charts/webbfolio
+            destination: .cr-release-packages
+
+    release-charts:
+        needs: [package-webbfolio-chart]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+    deploy:
+        needs: [release-charts, build-and-push-webbfolio-image]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4

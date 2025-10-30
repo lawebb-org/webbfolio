@@ -1,0 +1,32 @@
+name: Package Chart
+on:
+    workflow_call:
+        inputs:
+            chart_name:
+                required: true
+                type: string
+            destination:
+                required: true
+                type: string
+
+jobs:
+    package-webbfolio-chart:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Configure Git
+              run: |
+                  git config user.name "$GITHUB_ACTOR"
+                  git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+            - name: Install Helm
+              uses: azure/setup-helm@v1
+              with:
+                  version: v3.19.0
+
+            - name: Package Webbfolio Chart
+              run: |
+                  VERSION=${{github.ref_name}}
+                  helm package ${{inputs.chart_name}} --app-version=${VERSION:1} --version=${VERSION:1} --destination=${{inputs.destination}}
