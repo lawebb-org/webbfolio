@@ -5,11 +5,15 @@ An interactive CV project using Kubernetes, Golang and NextJS
 
 ### Deployment/Releases
 
-Versioning is kept the same over all components for simplicity
+#### Tools
+* GitHub Actions
+* Helm
+* Kubernetes
+* Docker
 
 #### Release Process
 
-**Trigger:** Tag is created (e.g. v1.0.0)
+**Trigger:** Tag is created (e.g. `v1.0.0`)
 1. Webbfolio image is built, tagged for the release (e.g. `1.0.0` and `latest`) and pushed to the organizations GitHub Container Registry
 2. Webbfolio helm chart is packaged for `1.0.0`
 3. A GitHub release is created for each helm chart (e.g. `webbfolio-1.0.0`) with the chart packaged as an asset
