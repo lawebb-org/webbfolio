@@ -27,10 +27,36 @@ jobs:
         permissions:
             contents: write
         needs: [package-webbfolio-chart]
-        uses: lawebb-org/webbfolio/.github/workflows/chart-releaser.yaml@main
-        with:
-            charts_dir: ./infra/charts
-            skip_packaging: true
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+              with:
+                  fetch-depth: 0
+
+            - name: Configure Git
+              run: |
+                  git config user.name "$GITHUB_ACTOR"
+                  git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+            - name: Download Helm Package Directory
+              uses: actions/download-artifact@v4
+              with:
+                  pattern: "*-helm-package-directory"
+                  path: .cr-release-packages
+                  merge-multiple: true
+                  if-no-files-found: error
+            - name: Show contents
+              run: |
+                  ls -R .cr-release-packages
+
+            - name: Release Charts
+              uses: helm/chart-releaser-action@v1.5.0
+              with:
+                  skip_packaging: "true"
+                  charts_dir: ./infra/charts
+              env:
+                  CR_TOKEN: ${{ github.token }}
 
     deploy:
         needs: [release-charts, build-and-push-webbfolio-image]
