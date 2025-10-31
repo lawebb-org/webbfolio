@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   webbfolio:
   - apiVersion: v2
+    appVersion: 0.0.16
+    created: "2025-10-31T00:50:10.167612527Z"
+    description: An interactive CV project using Kubernetes, Golang and NextJS
+    digest: 8390708750c499ed360ad27dd10d7f6c717dbf410403b3c15efca52ddd403281
+    name: webbfolio
+    type: application
+    urls:
+    - https://github.com/lawebb-org/webbfolio/releases/download/webbfolio-0.0.16/webbfolio-0.0.16.tgz
+    version: 0.0.16
+  - apiVersion: v2
     appVersion: 0.0.12
     created: "2025-10-30T23:51:17.217746378Z"
     description: An interactive CV project using Kubernetes, Golang and NextJS
@@ -21,4 +31,4 @@ entries:
     urls:
     - https://github.com/lawebb-org/webbfolio/releases/download/webbfolio-0.0.11/webbfolio-0.0.11.tgz
     version: 0.0.11
-generated: "2025-10-30T23:51:17.217754172Z"
+generated: "2025-10-31T00:50:10.167627545Z"
