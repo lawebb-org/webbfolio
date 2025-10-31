@@ -51,10 +51,10 @@ jobs:
                   ls -R .cr-release-packages
 
             - name: Release Charts
-              uses: helm/chart-releaser-action@v1.7.0
+              uses: lawebb-org/webbfolio/.github/workflows/chart-releaser.yaml@main
               with:
-                  skip_packaging: "true"
                   charts_dir: ./infra/charts
+                  skip_packaging: true
               env:
                   CR_TOKEN: ${{ github.token }}
 
