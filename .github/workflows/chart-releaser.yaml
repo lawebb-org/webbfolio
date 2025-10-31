@@ -52,7 +52,26 @@ jobs:
               with:
                   fetch-depth: 0
 
+            - name: Configure Git
+              run: |
+                  git config user.name "$GITHUB_ACTOR"
+                  git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+            - name: Download Helm Package Directory
+              uses: actions/download-artifact@v4
+              with:
+                  pattern: "*-helm-package-directory"
+                  path: .cr-release-packages
+                  merge-multiple: true
+                  if-no-files-found: error
+
+            - name: Show contents
+              run: |
+                  ls -R .cr-release-packages
+
             - name: Release Charts
+              env:
+                  CR_TOKEN: ${{ github.token }}
               run: |
                   owner=$(cut -d '/' -f 1 <<< "$GITHUB_REPOSITORY")
                   repo=$(cut -d '/' -f 2 <<< "$GITHUB_REPOSITORY")
