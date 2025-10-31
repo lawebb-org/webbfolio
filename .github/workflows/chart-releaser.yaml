@@ -4,41 +4,51 @@
 name: Helm Chart Releaser
 
 on:
-    workflow_dispatch:
+    workflow_call:
         inputs:
             version:
                 description: "The chart-releaser version to use (default: v1.7.0)"
+                type: string
                 required: false
                 default: v1.7.0
             config:
                 description: "The relative path to the chart-releaser config file"
+                type: string
                 required: false
             charts_dir:
                 description: The charts directory
+                type: string
                 required: false
                 default: charts
             install_dir:
                 description: "Where to install the cr tool"
+                type: string
                 required: false
             install_only:
                 description: "Just install cr tool"
+                type: string
                 required: false
             skip_packaging:
                 description: "Skip the packaging option (do your custom packaging before running this action)"
+                type: string
                 required: false
             skip_existing:
                 description: "Skip package upload if release exists"
+                type: string
                 required: false
             mark_as_latest:
                 description: Mark the created GitHub release as 'latest'
+                type: string
                 required: false
                 default: "true"
             packages_with_index:
                 description: "Upload chart packages directly into publishing branch"
+                type: string
                 required: false
                 default: "false"
             pages_branch:
                 description: "Name of the branch to be used to push the index and artifacts. (default to: gh-pages but it is not set in the action it is a default value for the chart-releaser binary)"
+                type: string
                 required: false
 
 jobs:
