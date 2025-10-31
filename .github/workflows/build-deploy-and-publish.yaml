@@ -24,6 +24,8 @@ jobs:
             chart_name: ./infra/charts/webbfolio
 
     release-charts:
+        permissions:
+            contents: write
         needs: [package-webbfolio-chart]
         uses: lawebb-org/webbfolio/.github/workflows/chart-releaser.yaml@main
         with:
